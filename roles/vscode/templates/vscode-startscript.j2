@@ -1,0 +1,13 @@
+#/bin/bash
+
+STUDENT=$1
+
+#ps -u $STUDENT -wo pid,ppid,cmd | grep node | egrep -v 'grep||bash' \
+
+#su - $STUDENT -c "ps -u ${STUDENT} -wo pid,ppid,cmd | egrep -v 'ps|grep|bash'" \
+#  | while read -r pid ppid cmd ; do
+#    echo "$pid $ppid $cmd"
+#done
+
+su - $STUDENT -c "nohup /bin/code-server --config /home/${STUDENT}/.config/code-server/config.yaml &"
+sleep 1;

@@ -1,0 +1,42 @@
+---
+- name: Create EC2 instance for Tower node
+  ec2:
+    assign_public_ip: true
+    key_name: "{{ ec2_name_prefix }}-key"
+    group: "{{ ec2_security_group }}"
+    instance_type: "{{ ec2_info[rhel].size }}"
+    image: "{{ node_ami.image_id }}"
+    region: "{{ ec2_region }}"
+#    exact_count: "{{ student_total }}"
+    count_tag:
+      Tower_node: "{{ ec2_name_prefix }}-node"
+    instance_tags:
+      Tower_node: "{{ ec2_name_prefix }}-node"
+#      Workshop: "{{ ec2_name_prefix }}"
+#      Workshop_type: "{{ workshop_type }}"
+#      AWS_USERNAME: "{{ aws_user }}"
+#      Info: "AWS_USERNAME that provisioned this-> {{ aws_user }}"
+      short_name: "ansible"
+      username: "ec2-user"
+    wait: "{{ ec2_wait }}"
+    vpc_subnet_id: "{{ ec2_vpc_subnet_id }}"
+    volumes:
+      - device_name: /dev/sda1
+        volume_type: gp2
+        volume_size: "{{ ec2_info[rhel].disk_space }}"
+        delete_on_termination: true
+  register: tower_output
+
+- name: Ensure tags are present for Tower node
+  ec2_tag:
+    region: "{{ ec2_region }}"
+    resource: "{{ item.1.id }}"
+    state: present
+    tags:
+      Name: "{{ ec2_name_prefix }}-tower-node"
+      Index: "{{ item[0] }}"
+      Student: "student{{ item.0 + 1 }}"
+      launch_time: "{{ item.1.launch_time }}"
+  with_indexed_items:
+    - "{{ tower_output.instances }}"
+  when: tower_output.instance_ids is not none

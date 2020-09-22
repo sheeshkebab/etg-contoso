@@ -1,0 +1,54 @@
+---
+- name: Build a jumphost - prepare with dependancies of students participating in a workshop
+  hosts: localhost
+  gather_facts: false
+  vars:
+   - ec2_wait: true 
+   - teardown: false
+   - instance_count: 1
+   #- ec2_name_prefix: "{{ tower_user_name }}_{{ instance_tag }}" 
+  roles:
+   - workshop_jumphost
+  tasks:
+
+- name: wait for all nodes to have SSH reachability
+  hosts: "jumphost"
+  become: true
+  gather_facts: false
+  roles:
+    - connectivity_test
+
+- name: Add local accounts for students participating in a workshop
+  hosts: "jumphost"
+  gather_facts: false
+  become: true
+  vars:
+  # - student_total: "10"
+  # - student_prefix: "student"
+  roles:
+   - user_accounts
+
+- name: Customise and add software dependancies
+  hosts: "jumphost"
+  become: true
+  gather_facts: true 
+  vars:
+    #- towerinstall: true
+  roles:
+    - common
+    - control_node 
+
+- name: Install coder service + NGINX frontend  
+  hosts: "jumphost"
+  become: true
+  gather_facts: true 
+  roles:
+    - vscode 
+  tasks:
+  - name: show all host IP matching group pattern, i.e. all in the group jumphost
+    debug:
+      msg: "{{ hostvars[item]['ansible_host'] }}"
+      #msg: "{{ item }} {{ hostvars[item]['ansible_' +  }}"
+      #ansible_host: "{{ item.public_ip_address }}"
+    with_inventory_hostnames:
+    - jumphost 

@@ -1,0 +1,38 @@
+---
+
+## Add a task to destroy the ec2-user jumphost ssh key in EC2.
+# Check for local directory and key first, then match it in EC2, then remove the directory {{ tower_user_name }}_{{ instance_tag }}
+# and the key.
+#
+# retrieve instances for VPC 1
+#
+#
+- name: grab node facts for workshop
+  ec2_instance_info:
+    region: "{{ ec2_region }}"
+    filters:
+      instance-state-name: running
+      "tag:owner": "{{ tower_user_name }}_{{ instance_tag }}"
+  register: nodes
+
+- name: debug all_workshop_vpc_nodes
+  debug:
+    var: nodes
+  when: debug_teardown
+
+# Destroy VPC 1 instances
+- name: destroy EC2 instances
+  ec2:
+    region: "{{ ec2_region }}"
+    state: absent
+    instance_ids: "{{ nodes.instances | map(attribute='instance_id') | list }}"
+    wait: true
+    wait_timeout: "{{ 1 * 300 | int}}"
+  register: result_ec2_destroy
+  when: nodes.instances
+
+- name: debug result_ec2_destroy
+  debug:
+    var: result_ec2_destroy
+  when: debug_teardown
+

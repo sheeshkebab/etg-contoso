@@ -1,0 +1,49 @@
+- name: install NGINX 
+  yum:
+    name: nginx 
+    state: present
+
+- name: Create sites available directory 
+  file:
+    path: "/etc/nginx/sites-available"
+    owner: root 
+    group: root 
+    state: directory
+    mode: '0664'
+
+- name: Create sites enabled directory
+  file:
+    path: "/etc/nginx/sites-enabled"
+    owner: root 
+    group: root
+    state: directory
+    mode: '0664'
+
+- name: Replace NGINX main config 
+  template:
+    src: nginx-conf.j2 
+    dest: "/etc/nginx/nginx.conf"
+    owner: root
+    group: root 
+    mode: '0664'
+
+- name: Create NGINX locations config
+  template:
+    src: nginx-code-server.j2
+    dest: "/etc/nginx/sites-available/nginx-code-server.conf"
+    owner: root
+    group: root
+    mode: '0664'
+
+- name: Create NGIX sites enabled link
+  file:
+    src: "/etc/nginx/sites-available/nginx-code-server.conf"
+    path: "/etc/nginx/sites-enabled/nginx-code-server.conf"
+    owner: root
+    group: root 
+    state: link
+
+- name: Start up NGINX server
+  service:
+    name: nginx
+    state: restarted 

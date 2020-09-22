@@ -1,0 +1,69 @@
+- name: Install vimrc in home directory
+  template:
+    src: vimrc.j2
+    dest: "/home/{{ item }}/.vimrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: Get latest release of Coder binary
+  uri:
+    url: https://api.github.com/repos/cdr/code-server/releases/latest
+  register: github_result
+
+- name: Save url for extraction of Coder binary
+  set_fact:
+    download_url: "{{item.browser_download_url}}"
+    version_name: "{{item.name.split('.tar')[0]}}"
+  when: "'linux' in item.browser_download_url"
+  loop: "{{github_result.json.assets}}"
+  loop_control:
+    label: "{{ item.browser_download_url }}"
+
+- name: Extract file
+  unarchive:
+    src: "{{download_url}}"
+    dest: "/home/{{item}}"
+    remote_src: yes
+  #register: output
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: Install ansible vscode extension
+  command: "/home/{{item}}/{{ version_name }}/code-server --auth none --install-extension vscoss.vscode-ansible"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+  #register: result
+
+- name: Move binary to /opt
+  copy:
+    src: /home/{{item}}/{{ version_name }}/code-server
+    dest: /opt/code-server
+    remote_src: yes
+    mode: '0744'
+    owner: "{{item}}"
+    group: "{{item}}"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: Apply systemd service file
+  template:
+    src: code-server.service.j2
+    dest: /etc/systemd/system/code-server.service
+#    owner: "{{username}}"
+    owner: root 
+    group: wheel
+    mode: '0744'
+
+- name: Start code-server service
+  service:
+    name: code-server
+    state: started
+    enabled: yes
+
+- name: Cleanup Coder binary from student directory
+  file:
+    path: /home/{{item}}/{{ version_name }}
+    state: absent
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: INSTALL VSCODE AND XRDP
+  include_tasks: gui.yml
+  when: xrdp|bool

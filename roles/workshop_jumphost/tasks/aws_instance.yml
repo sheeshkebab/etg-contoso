@@ -1,0 +1,81 @@
+---
+  - name: Create ssh key pair for workshop {{ ec2_name_prefix }}
+    ec2_key:
+      name: "{{ ec2_name_prefix }}-jumphost-key"
+      region: "{{ ec2_region }}"
+    register: create_key
+
+  - name: save private key
+    copy:
+      content: "{{ create_key.key.private_key }}"
+      dest: "{{ playbook_dir }}/{{ec2_name_prefix}}/{{ec2_name_prefix}}-private.pem"
+      mode: '0400'
+    when: create_key.changed
+
+  - name: Create EC2 instance
+    ec2:
+      assign_public_ip: yes
+      key_name:  "{{ ec2_name_prefix }}-jumphost-key" 
+      group: "{{ ec2_security_group }}"
+      instance_type: "{{ ec2_info[rhel].size }}"
+      image: "{{ node_ami.image_id }}"
+      region: "{{ ec2_region }}"
+      count: "{{ instance_count|int }}"
+      instance_tags: "{'owner':'{{ ec2_name_prefix }}', 'Name':'jumphost_''{{ ec2_name_prefix }}'}"
+      vpc_subnet_id: "{{ ec2_subnet_id }}"
+      assign_public_ip: yes
+      group_id: "{{ ec2_security_group }}"
+      wait: "{{ ec2_wait }}" 
+      vpc_subnet_id: "{{ ec2_subnet_id }}"
+      volumes:
+        - device_name: /dev/sda1
+          volume_type: gp2
+          volume_size: "{{ ec2_info[rhel].disk_space }}"
+          delete_on_termination: true
+    tags: create
+    register: ec2 
+
+
+  - name: Ensure tags are present for jumphost
+    ec2_tag:
+      region: "{{ ec2_region }}"
+      resource: "{{ item.1.id }}"
+      state: present
+      tags:
+        #Name: "{{ ec2_name_prefix }}-jumphost"
+        short_name: "jump"
+        launch_time: "{{ item.1.launch_time }}"
+    with_indexed_items:
+      - "{{ ec2.instances }}"
+
+#  - name: Display enumerated list
+#    debug: msg="IP is {{ item }}"
+#    with_items: "{{ ec2.instances|map(attribute='public_ip')|list }}"
+
+#  - name: Set Fact with new node IP details
+#    set_fact: 
+#      workshop_node_IP_details: "{{ ec2.instances|map(attribute='public_ip')|list }}"
+
+  - name: grab facts for node1 node
+    ec2_instance_info:
+      region: "{{ ec2_region }}"
+      filters:
+        instance-state-name: running
+        "tag:owner": "{{ ec2_name_prefix }}"
+    register: ec2_facts
+
+  - name: add hosts to groups
+    add_host:
+      name: "{{ item.tags.Name }}"
+      username: "ec2-user"
+      short_name: "{{ item.tags.short_name }}"
+      ansible_host: "{{ item.public_ip_address }}"
+      ansible_user: "ec2-user"
+      ansible_port: "{{ ssh_port }}"
+      ansible_ssh_private_key_file: "{{ playbook_dir }}/{{ec2_name_prefix}}/{{ec2_name_prefix}}-private.pem"
+      groups: jumphost 
+    with_items:
+      - "{{ ec2_facts.instances }}"
+    changed_when: false
+
+

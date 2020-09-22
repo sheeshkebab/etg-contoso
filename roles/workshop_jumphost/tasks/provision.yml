@@ -1,0 +1,23 @@
+---
+- name: ensure workshop folder {{ tower_user_name  }}_{{ instance_tag }} exists
+  file:
+    path: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
+    state: directory
+
+## find AMI - amazon machine images dynamically
+- name: find correct AMI
+  include_tasks: 'ami_find/ami_find_rhel.yml'
+
+- name: provision aws instances
+  include_tasks: aws_instance.yml
+#  when: not teardown|bool
+
+#- name: add common resources
+#  include_tasks: common.yml
+#  tags: provisioned
+#  when: not teardown|bool
+
+#- name: add extra resources
+#  include_tasks: extras.yml
+#  tags: provisioned
+#  when: not teardown|bool

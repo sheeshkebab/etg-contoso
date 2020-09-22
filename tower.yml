@@ -1,0 +1,41 @@
+---
+- name: Build an Ansible Tower instance in EC2 
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    - teardown: False
+    - aws_user: ec2-user 
+    - student_total: 1
+  roles:
+    - tower_node
+
+- name: wait for all nodes to have SSH reachability
+  hosts: "managed_nodes:control_nodes"
+  become: true
+  gather_facts: false
+  roles:
+    - connectivity_test
+
+- name: Configure common options on managed nodes and control nodes
+  hosts: "managed_nodes:control_nodes"
+  gather_facts: false
+  become: true
+  roles:
+    - user_accounts
+    - common
+
+- name: configure ansible control node
+  hosts: control_nodes
+  gather_facts: true
+  become: true
+  roles:
+    - role: control_node
+  tasks:
+  #  - include_role:
+  #      name: code_server
+  #    when:
+  #      - code_server is defined
+  #      - code_server
+  #      - towerinstall is defined
+  #      - towerinstall

@@ -1,0 +1,62 @@
+- name: Install vimrc in home directory
+  template:
+    src: vimrc.j2
+    dest: "/home/{{ item }}/.vimrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+
+- name: install Coder rpm
+  yum:
+    name: https://github.com/cdr/code-server/releases/download/v3.4.1/code-server-3.4.1-amd64.rpm
+    state: present
+
+- name: Install ansible vscode extension
+  command: "/bin/code-server --auth none --install-extension vscoss.vscode-ansible"
+
+- name: Create user config file directory
+  file:
+    path: "/home/{{ item }}/.config/code-server/"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+
+- name: Build dictionary with users bind port
+  set_fact:
+    user_coder_details: "{{ user_coder_details | combine( { student_prefix + item.rsplit('80')[1]: item } ) }}"
+  with_sequence: "start=8000 end={{ 8000|int + student_total|int }} format=%02d"
+
+- name: Print user_coder_details
+  debug:
+    var: user_coder_details
+
+- name: Template a bash script for starting Coder
+  template:
+    src: vscode-startscript.j2 
+    dest: "/usr/bin/vscode-startscript.sh"
+    owner: root 
+    group: root 
+    mode: '0544'
+
+- name: Template a file for user Coder config
+  template:
+    src: coder-config.j2
+    dest: "/home/{{ item }}/.config/code-server/config.yaml"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0664'
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+
+- name: Start individual Coder envs 
+  #shell: "nohup /bin/code-server --config $HOME/.config/code-server/config.yaml >/dev/null 2>&1 &"
+  shell: "/usr/bin/vscode-startscript.sh {{ item }}"
+  #become: yes
+  #become_method: sudo
+  #become_user: "{{ item }}"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+
+#- name: INSTALL VSCODE AND XRDP
+#  include_tasks: gui.yml
+#  when: xrdp|bool

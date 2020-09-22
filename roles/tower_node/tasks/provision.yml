@@ -1,0 +1,22 @@
+---
+- name: ensure workshop folder {{ ec2_name_prefix }} exists
+  file:
+    path: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
+    state: directory
+
+## These AWS resources are used for every workshop type
+## This includes VPC, subnet, Security Group, Internet Gateway and route table
+- name: provision aws resources
+  include_tasks: resources/resources.yml
+
+## find AMI - amazon machine images dynamically
+- name: find correct AMI
+  include_tasks: 'ami_find/ami_find_{{ workshop_type }}.yml'
+
+## Instance creation
+- name: provision workshop instances
+  include_tasks: 'instances/instances_{{ workshop_type }}.yml'
+
+# Create inventories, file and in-memory
+- name: create instructor_inventory, and student files
+  include_tasks: create_inventory.yml

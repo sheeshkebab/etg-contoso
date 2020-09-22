@@ -1,0 +1,9 @@
+---
+- name: install Coder server
+  include_tasks: xcode.yml
+
+- name: install NGINX frontend 
+  include_tasks: nginx.yml
+
+#- name: Add X-Server 
+#  include_tasks: gui.yml

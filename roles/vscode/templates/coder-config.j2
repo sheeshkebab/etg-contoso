@@ -1,0 +1,7 @@
+{% set username = item %}
+{#% set key = user_coder_details[item] %#}
+{#bind-addr: 127.0.0.1:{{ user_coder_details[key] }} #}
+bind-addr: 127.0.0.1:{{ user_coder_details[username] }} 
+auth: password
+password: AROworkshop2020
+cert: false

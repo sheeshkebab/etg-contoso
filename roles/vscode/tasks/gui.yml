@@ -1,0 +1,36 @@
+- name: ADD THE KEY FOR VSCODE
+  rpm_key:
+    state: present
+    key: https://packages.microsoft.com/keys/microsoft.asc
+
+- name: ADD THE VSCODE RPM INFO
+  copy:
+    src: files/vscode_rpminfo
+    dest: /etc/yum.repos.d/vscode.repo
+
+- name: ENSURE XRDP IS INSTALLED
+  yum: name=xrdp
+
+# RHEL does not officially support XFCE, keep this in mind
+# https://access.redhat.com/solutions/56723
+- name: ENSURE XFCE IS INSTALLED
+  yum:
+    name: "@xfce"
+    skip_broken: true
+
+- name: ENSURE XCLIENTS IS PRESENT
+  file:
+    path: "/home/{{ item }}/.Xclients"
+    mode: 0755
+    state: touch
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: ENSURE XFCE IS CONFIGURED
+  shell: "echo xfce4-session > /home/{{ item }}/.Xclients"
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02x"
+
+- name: ENSURE VSCODE IS INSTALLED
+  yum: name=code
+
+- name: Start xrdp service
+  service: name=xrdp state=started

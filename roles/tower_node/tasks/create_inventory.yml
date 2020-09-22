@@ -1,0 +1,5 @@
+---
+
+- name: setup inventory
+  include_tasks: "inventory/addhost_{{workshop_type}}.yml"
+

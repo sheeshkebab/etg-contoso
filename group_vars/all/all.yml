@@ -1,0 +1,43 @@
+---
+admin_password: ansible
+code_server: true
+workshop_dns_zone: "rhdemo.io"
+s3_state: "present"
+teardown: false
+towerinstall: false
+populatetower: false 
+dns_information: "No errors with DNS"
+callback_information: "No issue with Ansible Tower callback"
+dns_type: aws
+
+workshop_type: "rhel"
+ec2_key_name: etg-richard-org
+ec2_region: ap-southeast-2
+ec2_az: ap-southeast-2b
+ec2_name_prefix: "{{ tower_user_name }}_{{ instance_tag }}"
+email: no
+create_login_page: false
+autolicense: true
+short_name: "ansible" # this is used in the control node role
+
+valid_dns_type:
+  - aws
+  - none
+valid_workshop_types:
+  - network
+  - f5
+  - rhel
+  - devops
+  - security
+  - storage
+  - windows
+  - rhel_90
+  - demo
+network_type: multivendor
+valid_network_types:
+  - cisco
+  - arista
+  - juniper
+  - multivendor
+doubleup: false
+attendance: true

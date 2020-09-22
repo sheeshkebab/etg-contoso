@@ -1,0 +1,23 @@
+---
+- name: Destroy lab instances in AWS
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+
+  vars:
+    ec2_wait: false
+    teardown: true
+    s3_state: absent
+    state: absent
+    debug_teardown: true 
+    unique_environment: {} 
+
+
+  tasks:
+    - {include_role: {name: workshop_jumphost}}
+
+    - name: Remove workshop local files
+      file:
+        dest: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
+        state: absent

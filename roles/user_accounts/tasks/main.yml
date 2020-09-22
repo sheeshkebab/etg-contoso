@@ -1,0 +1,33 @@
+---
+- name: Create User Group
+  group:
+    name: "{{ item }}"
+    state: present
+  tags:
+    - user_accounts
+    - users
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+  
+- name: Create User Account
+  user:
+    createhome: true
+    group: "{{ item }}"
+    name: "{{ item }}"
+    shell: /bin/bash
+    state: present
+    password: "{{ admin_password_hash }}"
+  tags:
+    - user_accounts
+    - users
+  with_sequence: "start=1 end={{ student_total }} format={{ student_prefix }}%02d"
+  #loop: '{{ range(0, student_total) | list }}'
+
+- name: Modify ec2-user password 
+  user:
+    createhome: false 
+    name: ec2-user
+    shell: /bin/bash
+    state: present
+    password: "{{ admin_password_hash }}"
+
+
