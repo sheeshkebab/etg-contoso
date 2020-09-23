@@ -1,5 +1,5 @@
 ---
-- name: Destroy lab instances in AWS
+- name: Destroy workshop jumphost or similar instances using provisioned tags
   hosts: localhost
   connection: local
   become: false
@@ -21,7 +21,7 @@
   # first of all, lets stat the local config directory and ssh key
   # Then lets list all the tagged resources in EC2 that match this tags of the jumphost
 
-  - name: Get stats of the local ssh key directory 
+  - name: Get file stat on the local ssh key directory
     stat:
       path: "{{ playbook_dir }}/{{ ec2_name_prefix }}" 
     register: p
@@ -30,16 +30,16 @@
       msg: "Path exists and is a directory"
     when: p.stat.isdir is defined and p.stat.isdir
 
-#  - name: Remove workshop local files
-#    file:
-#      dest: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
-#      state: absent
+  - name: Remove workshop local files
+    file:
+      dest: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
+      state: absent
 
-#  - name: Remove ssh key pair {{ ec2_name_prefix }}-jumphost-key
-#    ec2_key:
-#      name: "{{ ec2_name_prefix }}-jumphost-key"
-#      region: "{{ ec2_region }}"
-#      state: absent
+  - name: Remove ssh key pair {{ ec2_name_prefix }}-jumphost-key
+    ec2_key:
+      name: "{{ ec2_name_prefix }}-jumphost-key"
+      region: "{{ ec2_region }}"
+      state: absent
 
   - name: grab facts for node1 node
     ec2_instance_info:
@@ -54,18 +54,17 @@
       var: nodes
     when: debug_teardown
 
-  # Destroy instances
-#  - name: destroy EC2 instances
-#    ec2:
-#      region: "{{ ec2_region }}"
-#      state: absent
-#      instance_ids: "{{ nodes.instances | map(attribute='instance_id') | list }}"
-#      wait: true
-#      wait_timeout: "{{ 1 * 300 | int}}"
-#    register: result_ec2_destroy
-#    when: nodes.instances
+  - name: destroy EC2 instances
+    ec2:
+      region: "{{ ec2_region }}"
+      state: absent
+      instance_ids: "{{ nodes.instances | map(attribute='instance_id') | list }}"
+      wait: true
+      wait_timeout: "{{ 1 * 300 | int}}"
+    register: result_ec2_destroy
+    when: nodes.instances
 
-#  - name: debug result_ec2_destroy
-#    debug:
-#      var: result_ec2_destroy
-#      when: debug_teardown
+  - name: debug result_ec2_destroy
+    debug:
+      var: result_ec2_destroy
+      when: debug_teardown
