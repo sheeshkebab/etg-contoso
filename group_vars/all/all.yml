@@ -14,6 +14,8 @@ workshop_type: "rhel"
 ec2_key_name: etg-richard-org
 ec2_region: ap-southeast-2
 ec2_az: ap-southeast-2b
+# instance_tag is defined within Ansible Tower and an extra var. Is is set to {{ tower_job_id }}
+# We should simply define the variable here to avoid confusion
 ec2_name_prefix: "{{ tower_user_name }}_{{ instance_tag }}"
 email: no
 create_login_page: false
