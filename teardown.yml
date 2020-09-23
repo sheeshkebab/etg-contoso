@@ -11,8 +11,8 @@
     s3_state: absent
     state: absent
     debug_teardown: true 
-    unique_environment: {}    # this should be a survey value containing the submitted from the build {{ job_id }}
-    ec2_name_prefix: "{{ tower_user_name }}_{{ unique_environment }}" 
+#    unique_environment: {}    # this should be a survey value containing the submitted from the build {{ job_id }}
+#    ec2_name_prefix: "{{ tower_user_name }}_{{ unique_environment }}" 
 
 
   tasks:
