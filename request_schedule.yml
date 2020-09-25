@@ -1,0 +1,15 @@
+---
+- name: Play that will schedule a job in Tower
+  tasks:
+
+  - name: echo the extra var for username
+    debug:
+      var: owner_name
+
+  - name: echo the extra var instance_tag
+    debug:
+      var: instance_tag
+
+  - name: echo the ec2_instancename
+    debug:
+      var: ec2_name_prefix   
