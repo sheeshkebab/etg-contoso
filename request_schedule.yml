@@ -31,18 +31,12 @@
 
   tasks:
 
-
-    - name: Display the availble timestamp format in Ansible
-      debug:
-        var=ansible_date_time
-
     - name: Calculate the teardown date
       set_fact:
         #future_date: "{{ lookup('pipe', 'date +%Y-%m-%d-%H:%M:%S') }}"
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 2 )  ) }}"       
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 25569 ) ) }}"       
-        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 20 ) ) }}"       
-        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 3600 ) ) }}"       
     - debug:
         var: future_date
 
