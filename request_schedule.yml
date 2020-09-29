@@ -44,7 +44,7 @@
         state: present
         unified_job_template: "contoso-schedule-teardown"
         #rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date='2020-09-30 13:05:51') }}"
-        rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date={{ future_date }}) }}"
+        rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date=future_date) }}"
         #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
         #rrule: "DTSTART;TZID=Australia/Sydney:20200929T103000 RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
         validate_certs: false
