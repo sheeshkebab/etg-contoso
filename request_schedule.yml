@@ -38,9 +38,10 @@
 
     - name: Calculate the teardown date
       set_fact:
-        future_date: "{{ lookup('pipe', 'date +%Y-%m-%d %H:%M:%S') }}"
+        #future_date: "{{ lookup('pipe', 'date +%Y-%m-%d-%H:%M:%S') }}"
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 2 )  ) }}"       
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 25569 ) ) }}"       
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int ) ) }}"       
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
     - debug:
         var: future_date
