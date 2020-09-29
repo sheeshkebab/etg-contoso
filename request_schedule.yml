@@ -27,12 +27,14 @@
     sched1: "{{ owner_name }}_{{ instance_tag }}_schedule"
   collections:
     - awx.awx.tower_schedule
+    #- awx.awx.tower_schedule_rrule
 
   tasks:
 
     - name: Calculate the teardown date
       set_fact:
-        future_date: "{{ '%Y%m%dT%H%M%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
+        #future_date: "{{ '%Y-%m-%dT%H%M%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
     - debug:
         var: future_date
 
@@ -42,11 +44,11 @@
         state: present
         unified_job_template: "contoso-schedule-teardown"
         #rrule: "{{ query('awx.awx.tower_schedule_rrule', 'None', start_date='2020-09-30 13:05:51') }}"
+        rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date='2020-09-30 13:05:51') }}"
         #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
         #rrule: "DTSTART;TZID=Australia/Sydney:20200929T103000 RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
-        rrule: "DTSTART;TZID=Australia/Sydney:{{ future_date }} RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
-       validate_certs: false
-        extra_data: 
-          owner_name: "{{ owner_name }}"
-          instance_tag: "{{ instance_tag }}"
+        validate_certs: false
+         extra_data: 
+           owner_name: "{{ owner_name }}"
+           instance_tag: "{{ instance_tag }}"
       register: result
