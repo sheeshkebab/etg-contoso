@@ -32,7 +32,7 @@
 
     - name: Calculate the teardown date
       debug:
-        msg: "{{ '%Y-%m-%d' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 3 )  ) }}"       
+        msg: "{{ '%Y%m%dT%H%M%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 3 )  ) }}"       
 
 #    - name: Build a teardown schedule for the jumphost 
 #      tower_schedule:
