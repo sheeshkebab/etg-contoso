@@ -31,8 +31,10 @@
   tasks:
 
     - name: Calculate the teardown date
-      debug:
-        msg: "{{ '%Y%m%dT%H%M%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 3 )  ) }}"       
+      set_fact:
+        future_date: "{{ '%Y%m%dT%H%M%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 1 )  ) }}"       
+    - debug:
+        var: future_date
 
 #    - name: Build a teardown schedule for the jumphost 
 #      tower_schedule:
