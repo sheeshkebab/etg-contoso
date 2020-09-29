@@ -1,5 +1,12 @@
 ---
+# Please note that this playbook is designed to be run via a callback from Tower.
+# owner_name and instance_tag variables are to be passwd in as extra_vars.
 - name: Play that will schedule a job in Tower
+  hosts: all
+  become: true
+  gather_facts: false
+  vars: 
+    ec2_name_prefix: "{{ owner_name }}_{{ instance_tag }}"
   tasks:
 
   - name: echo the extra var for username
@@ -13,3 +20,30 @@
   - name: echo the ec2_instancename
     debug:
       var: ec2_name_prefix   
+
+- name: Add the scheduled task
+  hosts: all
+  vars:
+    sched1: "{{ owner_name }}_{{ instance_tag }}_schedule"
+  collections:
+    - awx.awx.tower_schedule
+
+  tasks:
+
+    - name: Calculate the teardown date
+      debug:
+        msg: "{{ '%Y-%m-%d' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 3 )  ) }}"       
+
+#    - name: Build a teardown schedule for the jumphost 
+#      tower_schedule:
+#        name: "{{ sched1 }}"
+#        state: present
+#        unified_job_template: "contoso-schedule-teardown"
+        #rrule: "{{ query('awx.awx.tower_schedule_rrule', 'None', start_date='2020-09-30 13:05:51') }}"
+        #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
+#        rrule: "DTSTART;TZID=Australia/Sydney:20200929T103000 RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
+#       validate_certs: false
+#        extra_data: 
+#          owner_name: "{{ owner_name }}"
+#          instance_tag: "{{ instance_tag }}"
+#      register: result
