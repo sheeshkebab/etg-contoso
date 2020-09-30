@@ -53,7 +53,7 @@
     - jumphost 
 
 - name: Add the Ansible Tower scheduled task
-  hosts: all
+  hosts: localhost 
   vars:
     sched1: "{{ tower_user_name }}_{{ instance_tag }}_schedule"
   collections:
