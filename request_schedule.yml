@@ -9,29 +9,29 @@
     ec2_name_prefix: "{{ owner_name }}_{{ instance_tag }}"
   tasks:
 
-  - name: echo the extra var for username
+  - name: echo the var for owner name
     debug:
       var: owner_name
 
-  - name: echo the extra var instance_tag
+  - name: echo the var for instance_tag, in this playbook the value is the job_id from initial jumphost deployment
     debug:
       var: instance_tag
 
-  - name: echo the ec2_instancename
+  - name: echo the ec2_name_prefix
     debug:
       var: ec2_name_prefix   
 
-- name: Add the scheduled task
+- name: Add the Ansible Tower scheduled task
   hosts: all
   vars:
     sched1: "{{ owner_name }}_{{ instance_tag }}_schedule"
   collections:
     - awx.awx.tower_schedule
-    #- awx.awx.tower_schedule_rrule
 
   tasks:
 
-    - name: Calculate the teardown date
+      # Ensure you setup the TZ under settings/jobs as an extra_var or you wont get accurate time.
+    - name: Calculate the future date for our schedule
       set_fact:
         #future_date: "{{ lookup('pipe', 'date +%Y-%m-%d-%H:%M:%S') }}"
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 2 )  ) }}"       
@@ -40,15 +40,13 @@
     - debug:
         var: future_date
 
-    - name: Build a teardown schedule for the jumphost 
+    - name: Setup the schedule for removing our jumphost 
       tower_schedule:
         name: "{{ sched1 }}"
         state: present
-        unified_job_template: "contoso-schedule-teardown"
-        #rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date='2020-09-30 13:05:51') }}"
+        unified_job_template: "contoso-jumphost-teardown"
         rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date=future_date) }}"
         #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
-        #rrule: "DTSTART;TZID=Australia/Sydney:20200929T103000 RRULE:FREQ=DAILY;INTERVAL=1;COUNT=1"
         validate_certs: false
         extra_data: 
           owner_name: "{{ owner_name }}"

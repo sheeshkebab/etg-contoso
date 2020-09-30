@@ -11,7 +11,7 @@
     s3_state: absent
     state: absent
     debug_teardown: true 
-    # ec2_name_prefx is overridden as an extra_var
+    # ec2_name_prefix is via an extra_var
   tasks:
 
   #  - {include_role: {name: workshop_jumphost}}

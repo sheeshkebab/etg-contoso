@@ -6,7 +6,6 @@
    - ec2_wait: true 
    - teardown: false
    - instance_count: 1
-   #- ec2_name_prefix: "{{ tower_user_name }}_{{ instance_tag }}" 
   roles:
    - workshop_jumphost
   tasks:
@@ -33,7 +32,7 @@
   become: true
   gather_facts: true 
   vars:
-    #- towerinstall: true
+    - towerinstall: false 
   roles:
     - common
     - control_node 
@@ -52,3 +51,35 @@
       #ansible_host: "{{ item.public_ip_address }}"
     with_inventory_hostnames:
     - jumphost 
+
+- name: Add the Ansible Tower scheduled task
+  hosts: all
+  vars:
+    sched1: "{{ tower_user_name }}_{{ instance_tag }}_schedule"
+  collections:
+    - awx.awx.tower_schedule
+
+  tasks:
+
+      # Ensure you setup the TZ under settings/jobs as an extra_var or you wont get accurate time.
+    - name: Calculate the future date for our schedule
+      set_fact:
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 3600 ) ) }}"
+        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 25569 ) ) }}"
+
+    - name: Print a date/time of our scheduled task for destroying this jumphost
+      debug:
+        var: future_date
+
+    - name: Setup the schedule for removing our jumphost
+      tower_schedule:
+        name: "{{ sched1 }}"
+        state: present
+        unified_job_template: "contoso-jumphost-teardown"
+        rrule: "{{ query('awx.awx.tower_schedule_rrule', 'none', timezone='Australia/Sydney', end_on=1, start_date=future_date) }}"
+        #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
+        validate_certs: false
+        extra_data:
+          owner_name: "{{ tower_user_name }}"
+          instance_tag: "{{ instance_tag }}"
+      register: result
