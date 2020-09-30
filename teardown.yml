@@ -64,4 +64,4 @@
   - name: debug result_ec2_destroy
     debug:
       var: result_ec2_destroy
-      when: debug_teardown
+    when: debug_teardown
