@@ -81,6 +81,6 @@
         #rrule: "DTSTART;TZID=Australia/Sydney:20200930T130551 RRULE:FREQ=DAILY;COUNT=1;INTERVAL=1"
         validate_certs: false
         extra_data:
-          owner_name: "{{ tower_user_name }}"
+          tower_user_name: "{{ tower_user_name }}"
           instance_tag: "{{ instance_tag }}"
       register: result
