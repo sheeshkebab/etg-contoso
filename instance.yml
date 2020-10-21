@@ -52,7 +52,6 @@
     with_inventory_hostnames:
     - jumphost 
 
-
 - name: Add the Ansible Tower scheduled task
   hosts: localhost 
   vars:
@@ -100,5 +99,5 @@
         to: "{{ tower_user_email }}" 
         from: rhailsto@redhat.com
         subject: " {{ subject }}"
-        body: "{{ body }}\n\n It will be automatically torn down at this time to save on resource costs : {{ future_date }}. Note, this is +48 hours from provisioned time" 
+        body: "{{ body }}\nIt will be automatically torn down at this time to save on resource costs : {{ future_date }}.\nNote, this is +48 hours from provisioned time.\n\n You may login using the ec2-user which allows you to sudo root\nIP={{ hostvars['jumphost'_tower_user_name'_'instance_tag]['ansible_host'] }} "
       delegate_to: localhost
