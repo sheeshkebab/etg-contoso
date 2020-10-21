@@ -52,10 +52,15 @@
     with_inventory_hostnames:
     - jumphost 
 
+
 - name: Add the Ansible Tower scheduled task
   hosts: localhost 
   vars:
-    sched1: "{{ tower_user_name }}_{{ instance_tag }}_schedule"
+    - sched1: "{{ tower_user_name }}_{{ instance_tag }}_schedule"
+    - host: 127.0.0.1
+    - port: 25
+    - subject: "from Ansible Tower {{ instance_tag }} Job Complete"
+    - body: "System {{ instance_tag }} has been succesfully provisioned."
   collections:
     - awx.awx.tower_schedule
 
@@ -87,3 +92,13 @@
           tower_user_name: "{{ tower_user_name }}"
           instance_tag: "{{ instance_tag }}"
       register: result
+
+    - name: Send an email
+      mail:
+        host: "{{ host }}"
+        port: " {{ port | int }}"
+        to: "{{ tower_user_email }}" 
+        from: rhailsto@redhat.com
+        subject: " {{ subject }}"
+        body: "{{ body }}\n\n It will be automatically torn down at this time to save on resource costs : {{ future_date }}. Note, this is +48 hours from provisioned time" 
+      delegate_to: localhost
