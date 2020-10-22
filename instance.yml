@@ -69,7 +69,8 @@
     - name: Calculate the future date for our schedule
       set_fact:
         # +48 hours
-        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
+        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 300 ) ) }}"
         # +1 hour
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 3600 ) ) }}"
 
