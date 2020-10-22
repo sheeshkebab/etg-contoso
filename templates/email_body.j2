@@ -1,0 +1,16 @@
+Hi {{ tower_user_name }},
+
+Your workshop jumphost has been provisioned.
+
+It will be automatically torn down at this time to save on resource costs
+
+{{ future_date }}
+
+Note, this is +48 hours from provisioned time
+
+You may login via ssh with the ec2-user account and password.
+{# set jumphostIP = hostvars['127.0.0.1']['ansible_all_ipv4_addresses'] #}
+{% set jumphostIP = hostvars['127.0.0.1'] %}
+ssh ec2-user@{{ hostvars['127.0.0.1'] | json_query('ansible_facts.default_ipv4.address')  }}
+
+{# ssh ec2-user@{{ jumphostIP | json_query('ansible_facts.default_ipv4.address')  }} #}
