@@ -69,11 +69,10 @@
     - name: Calculate the future date for our schedule
       set_fact:
         # +48 hours
-        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
+        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 300 ) ) }}"
         # +1 hour
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 3600 ) ) }}"
-        # +7 hours
-        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 25569 ) ) }}"
 
     - name: Print a date/time of our scheduled task for destroying this jumphost
       debug:
@@ -92,12 +91,13 @@
           instance_tag: "{{ instance_tag }}"
       register: result
 
-#    - name: Send an email
-#      mail:
-#        host: "{{ host }}"
-#        port: " {{ port | int }}"
-#        to: "{{ tower_user_email }}" 
-#        from: rhailsto@redhat.com
-#        subject: " {{ subject }}"
-#        body: "{{ body }}\nIt will be automatically torn down at this time to save on resource costs : {{ future_date }}.\nNote, this is +48 hours from provisioned time.\n\n You may login using the ec2-user which allows you to sudo root\nIP={{ hostvars['jumphost_'tower_user_name'_'instance_tag]['ansible_host'] }} "
-#      delegate_to: localhost
+    - name: Send an email - To requestor
+      mail:
+        host: "{{ host }}"
+        port: "{{ port | int }}"
+        to: "{{ tower_user_email }}"
+        from: rhailsto@redhat.com
+        subject: "{{ subject }}"
+        body: "{{ lookup('template', 'email_body.j2') }}"
+        ##attach: "{{ hostvars['jumphost_'ec2_name_prefix]['ansible_ssh_private_key_file'] }}"
+      delegate_to: localhost

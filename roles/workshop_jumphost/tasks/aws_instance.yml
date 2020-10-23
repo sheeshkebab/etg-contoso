@@ -42,19 +42,10 @@
       resource: "{{ item.1.id }}"
       state: present
       tags:
-        #Name: "{{ ec2_name_prefix }}-jumphost"
         short_name: "jump"
         launch_time: "{{ item.1.launch_time }}"
     with_indexed_items:
       - "{{ ec2.instances }}"
-
-#  - name: Display enumerated list
-#    debug: msg="IP is {{ item }}"
-#    with_items: "{{ ec2.instances|map(attribute='public_ip')|list }}"
-
-#  - name: Set Fact with new node IP details
-#    set_fact: 
-#      workshop_node_IP_details: "{{ ec2.instances|map(attribute='public_ip')|list }}"
 
   - name: grab facts for node1 node
     ec2_instance_info:
