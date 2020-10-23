@@ -99,5 +99,5 @@
         from: rhailsto@redhat.com
         subject: "{{ subject }}"
         body: "{{ lookup('template', 'email_body.j2') }}"
-        attach: "{{ hostvars['jumphost_'ec2_name_prefix]['ansible_ssh_private_key_file'] }}"
+        ##attach: "{{ hostvars['jumphost_'ec2_name_prefix]['ansible_ssh_private_key_file'] }}"
       delegate_to: localhost
