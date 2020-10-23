@@ -11,5 +11,3 @@ Note, this is +48 hours from provisioned time
 You may login via ssh with the ec2-user account and password.
 {% set jumphostName = "jumphost_" + ec2_name_prefix  %}
 ssh ec2-user@{{ hostvars[jumphostName]['ansible_host'] }}
-
-{# ssh ec2-user@{{ hostvars['127.0.0.1'] | json_query('ansible_facts.default_ipv4.address')  }} #}
