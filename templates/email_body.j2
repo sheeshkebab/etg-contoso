@@ -16,5 +16,5 @@ ssh ec2-user@{{ hostvars[jumphostName]['ansible_host'] }}
 Individual student dev environments can each be found at the following locations,
 
 {% for user, port in hostvars[jumphostName]['user_coder_details'].iteritems() %}
- - http://{{ jumphostName }}/{{ user }}/
+ - http://{{ hostvars[jumphostName]['ansible_host'] }}/{{ user }}/
 {% endfor %}
