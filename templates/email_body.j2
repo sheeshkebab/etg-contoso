@@ -10,11 +10,12 @@ Note, this is +48 hours from provisioned time
 
 You may login via ssh with the ec2-user account and password.
 {% set jumphostName = "jumphost_" + ec2_name_prefix  %}
+{% set jumphostIP = hostvars[jumphostName]['ansible_host'] %}
 ssh ec2-user@{{ hostvars[jumphostName]['ansible_host'] }}
-
 
 Individual student dev environments can each be found at the following locations,
 
 {% for user, port in hostvars[jumphostName]['user_coder_details'].iteritems() %}
- - http://{{ hostvars[jumphostName]['ansible_host'] }}/{{ user }}/
+ - http://{{ jumphostIP }}/{{ user }}/
 {% endfor %}
+{# - http://{{ hostvars[jumphostName]['ansible_host'] }}/{{ user }}/ #}
