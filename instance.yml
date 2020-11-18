@@ -47,8 +47,6 @@
   - name: show all host IP matching group pattern, i.e. all in the group jumphost
     debug:
       msg: "{{ hostvars[item]['ansible_host'] }}"
-      #msg: "{{ item }} {{ hostvars[item]['ansible_' +  }}"
-      #ansible_host: "{{ item.public_ip_address }}"
     with_inventory_hostnames:
     - jumphost 
 
@@ -64,13 +62,12 @@
     - awx.awx.tower_schedule
 
   tasks:
-
-      # Ensure you setup the TZ under settings/jobs as an extra_var or you wont get accurate time.
+      # Ensure you setup the TZ under settings/jobs as an extra_var or you will get UTC skewed time.
     - name: Calculate the future date for our schedule
       set_fact:
         # +48 hours
-        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
-        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 300 ) ) }}"
+        #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 172800 ) ) }}"
+        future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 600 ) ) }}"
         # +1 hour
         #future_date: "{{ '%Y-%m-%d %H:%M:%S' | strftime( ( ansible_date_time['epoch'] | int + 3600 ) ) }}"
 
